@@ -14,8 +14,41 @@ if (argv._.length == 0) {
 const command = argv._[0]
 let subcommand = argv._[1]
 
-auth.check(command, subcommand)
-.then(() => {
+if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp')) {
+  auth.check(command, subcommand)
+  .then(() => {
+    const api = require('../lib/api')(env.val('demo') === 'true')
+    let context
+    try { context = require(`../lib/${command}.js`) }
+    catch (err) {
+      console.log(err)
+      throw `Invalid base command '${command}'`
+    }
+
+    if (typeof subcommand === 'undefined') subcommand = 'default'
+    if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`
+
+    if (argv._[2] === '?') {
+      utils.printHelp(context, subcommand)
+      return
+    }
+
+    context[subcommand](api, ...argv._.slice(2))
+    .then(() => {
+      //we're done!
+    })
+    .catch(err => {
+      if (err.response) { // semantic server error
+        console.log(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`))
+      } else { // user input error (probably)
+        console.log(err)
+      }
+    })
+  })
+  .catch((err) => {
+    console.log(err)
+  })
+} else {
   const api = require('../lib/api')(env.val('demo') === 'true')
   let context
   try { context = require(`../lib/${command}.js`) }
@@ -43,7 +76,4 @@ auth.check(command, subcommand)
       console.log(err)
     }
   })
-})
-.catch((err) => {
-  console.log(err)
-})
+}
