@@ -725,13 +725,24 @@ You can ask Gemini a question using the `gemini ask` command.
 
 ```
     Syntax:
-    cm gemini ask "<your question>"
+    cm gemini ask "<your question>" [--debug]
 ```
 
+**Arguments:**
+
+*   `<your question>`: The question you want to ask Gemini.
+*   `--debug`: An optional flag to show the exact prompt being sent to the Gemini service.
+
+**Example:**
+
 ```
-    Example:
-    cm gemini ask "what is the capital of France?"
+cm gemini ask "what is the capital of France?" --debug
 ```
+
+**Authentication:**
+
+The Gemini features in this CLI do not require any separate login or authentication.
+
 
 ### Natural Language Trading
 

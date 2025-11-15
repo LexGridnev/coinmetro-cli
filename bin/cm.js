@@ -33,7 +33,7 @@ if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp')) {
       return
     }
 
-    context[subcommand](api, ...argv._.slice(2))
+context[subcommand](api, ...argv._.slice(2), argv)
     .then(() => {
       //we're done!
     })
@@ -65,7 +65,7 @@ if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp')) {
     return
   }
 
-  context[subcommand](api, ...argv._.slice(2))
+  context[subcommand](api, ...argv._.slice(2), argv)
   .then(() => {
     //we're done!
   })
