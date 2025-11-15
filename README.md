@@ -714,3 +714,38 @@ Run a command using its shorthand name
     Example:
     cm cmd run mylogincmd   // this will run a command called mylogincmd which will presumably perform the login
 ```
+
+## Gemini Integration
+
+This CLI is integrated with Gemini, a powerful AI assistant. You can use Gemini to ask questions and perform trades using natural language.
+
+### Ask Gemini
+
+You can ask Gemini a question using the `gemini ask` command.
+
+```
+    Syntax:
+    cm gemini ask "<your question>"
+```
+
+```
+    Example:
+    cm gemini ask "what is the capital of France?"
+```
+
+### Natural Language Trading
+
+You can execute trades using natural language with the `trade nlp` command.
+
+```
+    Syntax:
+    cm trade nlp "<your trade command>"
+```
+
+```
+    Examples:
+    cm trade nlp "buy 100 euro of bitcoin"
+    cm trade nlp "sell 0.5 btc @ 10000"
+```
+
+The CLI will parse your command and show you the corresponding `coinmetro-cli` command. You can then copy and paste this command to execute it.
