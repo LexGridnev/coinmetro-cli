@@ -46,15 +46,16 @@ context[subcommand](api, ...argv._.slice(2), argv)
     })
   })
   .catch((err) => {
-    console.log(err)
+    console.error(err.message)
+    throw err
   })
 } else {
   const api = require('../lib/api')(env.val('demo') === 'true')
   let context
   try { context = require(`../lib/${command}.js`) }
   catch (err) {
-    console.log(err)
-    throw `Invalid base command '${command}'`
+    console.error(err.message)
+    throw err
   }
 
   if (typeof subcommand === 'undefined') subcommand = 'default'
@@ -83,20 +84,23 @@ context[subcommand](api, ...argv._.slice(2), argv)
     }
   };
 
-  // Pass aiService if the command is 'gemini' or 'trade nlp'
+  let commandPromise;
   if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
-    context[subcommand](api, ...argv._.slice(2), argv, aiService)
+    commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService);
   } else {
-    context[subcommand](api, ...argv._.slice(2), argv)
+    commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
   }
+
+  commandPromise
   .then(() => {
     //we're done!
   })
   .catch(err => {
     if (err.response) { // semantic server error
-      console.log(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`))
+      console.error(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`))
     } else { // user input error (probably)
-      console.log(err)
+      console.error(err.message)
     }
+    throw err
   })
 }
