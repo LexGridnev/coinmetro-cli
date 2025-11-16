@@ -103,7 +103,9 @@ dist
 # TernJS port file
 .tern-port
 
+# IDE and Editor files
 .vscode
-dist
-.env
+
+# Generated files
+coinmetro_api.json
 .cmd
