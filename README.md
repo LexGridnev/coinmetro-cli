@@ -28,9 +28,25 @@ This will install Coinmetro CLI as a global command. You can then use your termi
 
 ### Binaries
 
-Binaries are packaged using [pkg](https://github.com/zeit/pkg) utility. Look under [releases](https://github.com/u2ros/coinmetro-cli/releases) to download the release for your platform. Rename the downloaded executable into cm (or cm.exe on windows) and place it somewhere on your PATH, or cd your terminal to the same folder where you unpacked and renamed your cm(.exe) executable.
+Binaries are packaged using the [pkg](https://github.com/zeit/pkg) utility.
 
-**IMPORTANT: Always use binaries you downloaded from this site. Never use any third party download links!!!**
+**Generating Binaries for a New Version:**
+
+To generate binaries for a new version of the CLI, follow these steps:
+
+1.  **Install `pkg`:** Ensure `pkg` is installed as a development dependency (`npm install --save-dev pkg`) or globally (`npm install -g pkg`).
+2.  **Run the build script:** Execute the `build` script defined in `package.json`:
+    ```bash
+    npm run build
+    ```
+    This will create platform-specific executables in the `dist` directory.
+3.  **Distribute:** Rename the generated executable (e.g., `cm` or `cm.exe` on Windows) and place it in a directory included in your system's `PATH` environment variable.
+
+**Pre-built Binaries:**
+
+You can find pre-built binaries for various platforms under the [releases section of the LexGridnev/coinmetro-cli repository](https://github.com/LexGridnev/coinmetro-cli/releases).
+
+**IMPORTANT: Always use binaries you downloaded from trusted sources. Never use any third-party download links!!!**
 
 ## Quickstart usage
 
