@@ -87,7 +87,10 @@ context[subcommand](api, ...argv._.slice(2), argv)
   let commandPromise;
   if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService);
-  } else {
+  } else if (command === 'market' && subcommand === 'ticker') {
+    commandPromise = context[subcommand](api, argv._[2], argv); // Pass specific pair arg
+  }
+  else {
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
   }
 
