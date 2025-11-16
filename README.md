@@ -192,6 +192,11 @@ Here is a list of available commands.
 - [cm cmd del](#cmd-del) - delete a stored command
 - [cm cmd run](#cmd-run) - run a stored command
 
+### Gemini
+
+- [cm gemini ask](#gemini-ask) - Ask a question to the Gemini AI.
+- [cm trade nlp](#trade-nlp) - Execute a trade using natural language.
+
 ### <a name="cmd-ref"></a> cm ref
 
 Print q quick comand reference
@@ -715,13 +720,9 @@ Run a command using its shorthand name
     cm cmd run mylogincmd   // this will run a command called mylogincmd which will presumably perform the login
 ```
 
-## Gemini Integration
+### <a name="gemini-ask"></a> cm gemini ask
 
-This CLI is integrated with Gemini, a powerful AI assistant. You can use Gemini to ask questions and perform trades using natural language.
-
-### Ask Gemini
-
-You can ask Gemini a question using the `gemini ask` command.
+Ask a question to the Gemini AI.
 
 ```
     Syntax:
@@ -743,10 +744,9 @@ cm gemini ask "What is the current price of Bitcoin?" --debug
 
 The Gemini features in this CLI do not require any separate login or authentication.
 
+### <a name="trade-nlp"></a> cm trade nlp
 
-### Natural Language Trading
-
-You can execute trades using natural language with the `trade nlp` command.
+Execute a trade using natural language.
 
 ```
     Syntax:
