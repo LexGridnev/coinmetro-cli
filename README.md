@@ -1,4 +1,4 @@
-# Coinmetro-CLI
+# Coinmetro-CLI: Gemini CLI Powered
 
 ![Book](./docs/media/cli-usage.gif)
 
@@ -6,7 +6,7 @@
 
 ![Book](./docs/media/book.jpg)
 
-A little side project [u2ros](https://github.com/u2ros/coinmetro-cli) made in his spare time (and still a work in progress) for accessing Coinmetro Crypto Exchange using the terminal. This version has been enhanced with Gemini AI integration, providing natural language processing capabilities for improved interaction and trading. It also includes a Postman integration to generate API documentation. This particular fork of the `coinmetro-cli` project is now evolving independently, driven by the innovative integration of Gemini CLI and continuous code enhancements orchestrated by the Gemini AI itself. Expect a dynamic and intelligent trading experience as this project pushes the boundaries of AI-assisted command-line interaction.
+This is the **Coinmetro-CLI**, now supercharged and **Gemini CLI Powered**! Originally a side project by [u2ros](https://github.com/u2ros/coinmetro-cli), this fork has evolved into an intelligent command-line interface for accessing the Coinmetro Crypto Exchange. With deep integration of Gemini AI, it offers advanced natural language processing for intuitive interaction and trading, alongside a robust Postman integration for API documentation. This project is driven by continuous innovation and code enhancements orchestrated by Gemini AI itself, promising a dynamic and intelligent trading experience that pushes the boundaries of AI-assisted command-line interaction.
 
 Coinmetro are a transparent, regulations compliant exchange that should appeal to newbies and pros. Visit [coinmetro.com](https://coinmetro.com/?ref=lexgri) to learn more about the different products they offer.
 
