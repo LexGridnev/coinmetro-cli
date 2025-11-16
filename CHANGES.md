@@ -17,7 +17,7 @@ cm gemini ask "<your question>"
 **Example:**
 
 ```
-cm gemini ask "what is the capital of France?"
+cm gemini ask "What is the current price of Bitcoin on Coinmetro?"
 ```
 
 ### Natural Language Trading
