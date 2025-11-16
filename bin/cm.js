@@ -65,7 +65,30 @@ context[subcommand](api, ...argv._.slice(2), argv)
     return
   }
 
-  context[subcommand](api, ...argv._.slice(2), argv)
+  // Create a simple AI service for now
+  const aiService = {
+    askQuestion: async (prompt) => {
+      // In a real scenario, this would call a Gemini AI model
+      return `AI response to: "${prompt}" (simulated)`;
+    },
+    parseTradeCommand: async (input) => {
+      // In a real scenario, this would call a Gemini AI model to parse the trade command
+      return {
+        action: 'buy',
+        quantity: '100',
+        currency: 'eur',
+        counterCurrency: 'btc',
+        price: '10000'
+      };
+    }
+  };
+
+  // Pass aiService if the command is 'gemini' or 'trade nlp'
+  if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
+    context[subcommand](api, ...argv._.slice(2), argv, aiService)
+  } else {
+    context[subcommand](api, ...argv._.slice(2), argv)
+  }
   .then(() => {
     //we're done!
   })
