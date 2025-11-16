@@ -736,7 +736,7 @@ You can ask Gemini a question using the `gemini ask` command.
 **Example:**
 
 ```
-cm gemini ask "what is the capital of France?" --debug
+cm gemini ask "What is the current price of Bitcoin?" --debug
 ```
 
 **Authentication:**
