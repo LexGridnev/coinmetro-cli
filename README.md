@@ -15,7 +15,7 @@ Please note this is not an official Coinmetro product, it is in early stages, so
 ## Installation
 
 ### From source (recommended)
-Coinmetro CLI is a node.js application, so you need [node.js](https://nodejs.org/en/) installed to run it.
+Coinmetro CLI is a node.js application, so you need [node.js](https://nodejs.org/en/) and npm installed to run it.
 
 If you know how to use git just clone the repository, then install it with npm:
 
@@ -38,7 +38,7 @@ Coinmetro-CLI will start in demo mode by default. If you want to use it with you
 
 ```
     cm auth live                                  // switch to live mode
-    cm auth login <your email> <your password>    // login to update accesss token
+    cm auth login <your email> <your password>    // login to update access token (see Command Reference for full details)
 ```
 
 Using the cmd module, you can store and chain commands for later use like so:
