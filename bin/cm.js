@@ -1,69 +1,71 @@
 #!/usr/bin/env node
 
-const c = require('ansi-colors')
-const auth = require('../lib/auth')
-const utils = require('../lib/utils')
-const env = require('../lib/env')
+const c = require('ansi-colors');
+const auth = require('../lib/auth');
+const utils = require('../lib/utils')(api);
+const env = require('../lib/env');
+const api = require('../lib/api')(env.val('demo') === 'true'); // Initialize API here
+const constants = require('../lib/constants')(api); // Pass API to constants
 
-const argv = require('yargs').argv
+const argv = require('yargs').argv;
 
 if (argv._.length == 0) {
-  console.log(c.red('Missing command argument'))
-  process.exit(1)
+  console.log(c.red('Missing command argument'));
+  process.exit(1);
 }
-const command = argv._[0]
-let subcommand = argv._[1]
+const command = argv._[0];
+let subcommand = argv._[1];
 
 if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp') && (command !== 'market' || subcommand !== 'ticker') && command !== 'postman') {
   auth.check(command, subcommand)
-  .then(() => {
-    const api = require('../lib/api')(env.val('demo') === 'true')
-    let context
-    try { context = require(`../lib/${command}.js`) }
-    catch (err) {
-      console.log(err)
-      throw `Invalid base command '${command}'`
-    }
-
-    if (typeof subcommand === 'undefined') subcommand = 'default'
-    if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`
-
-    if (argv._[2] === '?') {
-      utils.printHelp(context, subcommand)
-      return
-    }
-
-context[subcommand](api, ...argv._.slice(2), argv)
     .then(() => {
-      //we're done!
-    })
-    .catch(err => {
-      if (err.response) { // semantic server error
-        console.log(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`))
-      } else { // user input error (probably)
-        console.log(err)
+      const api = require('../lib/api')(env.val('demo') === 'true');
+      let context;
+      try { context = require(`../lib/${command}.js`); }
+      catch (err) {
+        console.log(err);
+        throw `Invalid base command '${command}'`;
       }
+
+      if (typeof subcommand === 'undefined') subcommand = 'default';
+      if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`;
+
+      if (argv._[2] === '?') {
+        utils.printHelp(context, subcommand);
+        return;
+      }
+
+      context[subcommand](api, ...argv._.slice(2), argv)
+        .then(() => {
+          //we're done!
+        })
+        .catch(err => {
+          if (err.response) { // semantic server error
+            console.log(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`));
+          } else { // user input error (probably)
+            console.log(err);
+          }
+        });
     })
-  })
-  .catch((err) => {
-    console.error(err.message)
-    throw err
-  })
+    .catch((err) => {
+      console.error(err.message);
+      throw err;
+    });
 } else {
-  const api = require('../lib/api')(env.val('demo') === 'true')
-  let context
-  try { context = require(`../lib/${command}.js`) }
+  const api = require('../lib/api')(env.val('demo') === 'true');
+  let context;
+  try { context = require(`../lib/${command}.js`); }
   catch (err) {
-    console.error(err.message)
-    throw err
+    console.error(err.message);
+    throw err;
   }
 
-  if (typeof subcommand === 'undefined') subcommand = 'default'
-  if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`
+  if (typeof subcommand === 'undefined') subcommand = 'default';
+  if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`;
 
   if (argv._[2] === '?') {
-    utils.printHelp(context, subcommand)
-    return
+    utils.printHelp(context, subcommand);
+    return;
   }
 
   // Create a simple AI service for now
@@ -95,15 +97,15 @@ context[subcommand](api, ...argv._.slice(2), argv)
   }
 
   commandPromise
-  .then(() => {
+    .then(() => {
     //we're done!
-  })
-  .catch(err => {
-    if (err.response) { // semantic server error
-      console.error(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`))
-    } else { // user input error (probably)
-      console.error(err.message)
-    }
-    throw err
-  })
+    })
+    .catch(err => {
+      if (err.response) { // semantic server error
+        console.error(c.red(`Error: ${err.response.data.message} (status: ${err.response.status})`));
+      } else { // user input error (probably)
+        console.error(err.message);
+      }
+      throw err;
+    });
 }
