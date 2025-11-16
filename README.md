@@ -138,7 +138,26 @@ An error message will be printed and here are the most common error messages and
 
 ## Roadmap
 
-No particular roadmap atm. There's some due diligence (code cleanup, tests, refactor). Feature wise I will add/change/remove features as i converge on typical use patterns. Feel free to open a feature request or report a bug by opening an issue on github.
+The Coinmetro-CLI, now Gemini CLI Powered, is on an exciting path of continuous enhancement. Our roadmap focuses on leveraging AI to deliver a more intelligent and seamless trading experience.
+
+**Key Areas of Focus:**
+
+*   **Enhanced Gemini AI Integration:**
+    *   **Real-time AI Model Integration:** Transition from simulated AI responses to actual API calls with a Gemini AI model for `gemini ask` and `trade nlp`. This includes secure API key management and robust error handling for AI service interactions.
+    *   **Advanced Natural Language Processing (NLP):** Improve the `trade nlp` command's ability to understand complex and varied natural language trade instructions, extracting parameters with higher accuracy and flexibility.
+    *   **Contextual AI Responses:** Implement AI that can maintain context across multiple commands, providing more relevant and personalized assistance.
+*   **Postman Integration Expansion:**
+    *   **Dynamic Collection Generation:** Develop the `postman generate` command to dynamically parse various API documentation formats (e.g., OpenAPI/Swagger) and generate comprehensive Postman collections.
+    *   **Automated API Testing:** Explore integrating Postman's testing capabilities to automate API health checks and validation within the CLI.
+*   **Comprehensive Testing & Code Quality:**
+    *   **Expanded Unit Test Coverage:** Increase unit test coverage for all features, including robust error path testing and edge case handling.
+    *   **Integration Tests:** Implement integration tests to ensure seamless interaction between different modules and external services.
+    *   **Code Refactoring & Optimization:** Continuous code cleanup, refactoring, and performance optimization to maintain a high-quality, scalable codebase.
+*   **User Experience & Interactivity:**
+    *   **Interactive Prompts:** Introduce more interactive prompts and user feedback mechanisms for a more intuitive CLI experience.
+    *   **Customizable Output:** Allow users to customize the output format and level of detail for various commands.
+
+We welcome community contributions, feature requests, and bug reports via GitHub issues to help shape the future of this intelligent trading CLI.
 
 ## <a name="command-reference"></a> Command reference
 
