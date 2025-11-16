@@ -6,7 +6,7 @@
 
 ![Book](./docs/media/book.jpg)
 
-A little side project [u2ros](https://github.com/u2ros/coinmetro-cli) made in his spare time (and still a work in progress) for accessing Coinmetro Crypto Exchange using the terminal. This version has been enhanced with Gemini AI integration, providing natural language processing capabilities for improved interaction and trading. This particular fork of the `coinmetro-cli` project is now evolving independently, driven by the innovative integration of Gemini CLI and continuous code enhancements orchestrated by the Gemini AI itself. Expect a dynamic and intelligent trading experience as this project pushes the boundaries of AI-assisted command-line interaction.
+A little side project [u2ros](https://github.com/u2ros/coinmetro-cli) made in his spare time (and still a work in progress) for accessing Coinmetro Crypto Exchange using the terminal. This version has been enhanced with Gemini AI integration, providing natural language processing capabilities for improved interaction and trading. It also includes a Postman integration to generate API documentation. This particular fork of the `coinmetro-cli` project is now evolving independently, driven by the innovative integration of Gemini CLI and continuous code enhancements orchestrated by the Gemini AI itself. Expect a dynamic and intelligent trading experience as this project pushes the boundaries of AI-assisted command-line interaction.
 
 Coinmetro are a transparent, regulations compliant exchange that should appeal to newbies and pros. Visit [coinmetro.com](https://coinmetro.com/?ref=lexgri) to learn more about the different products they offer.
 
@@ -160,6 +160,7 @@ Here is a list of available commands.
 - [cm market chart](#market-chart) - draw a market chart
 - [cm market trades](#market-trades) - list recent market trades
 - [cm market book](#market-book) - display market order book
+- [cm market ticker](#market-ticker) - display market ticker
 
 ### Trade platform
 
@@ -196,6 +197,10 @@ Here is a list of available commands.
 
 - [cm gemini ask](#gemini-ask) - Ask a question to the Gemini AI.
 - [cm trade nlp](#trade-nlp) - Execute a trade using natural language.
+
+### Postman
+
+- [cm postman generate](#postman-generate) - Generate a Postman collection from the Coinmetro API documentation.
 
 ### <a name="cmd-ref"></a> cm ref
 
@@ -313,6 +318,21 @@ Display current order book of a specific market
 ```
     Example:
     cm market book btceur 5  // display bitcoin order book with 5 rows on buy and sell side
+```
+
+### <a name="market-ticker"></a> cm market ticker
+Display ticker information for a specific market
+
+```
+    Syntax:
+    cm market ticker <pair>
+
+    pair     : required
+```
+
+```
+    Example:
+    cm market ticker btceur
 ```
 
 ### <a name="trade-balance"></a> cm trade balance
@@ -760,3 +780,14 @@ Execute a trade using natural language.
 ```
 
 The CLI will parse your command and show you the corresponding `coinmetro-cli` command. You can then copy and paste this command to execute it.
+
+### <a name="postman-generate"></a> cm postman generate
+
+Generate a Postman collection from the Coinmetro API documentation.
+
+```
+    Syntax:
+    cm postman generate
+```
+
+This command will fetch the latest Coinmetro API documentation and save it to a file named `coinmetro_api.json` in the current directory. You can then import this file into Postman.
