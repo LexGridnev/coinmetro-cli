@@ -232,6 +232,7 @@ Here is a list of available commands.
 
 - [cm gemini ask](#gemini-ask) - Ask a question to the Gemini AI.
 - [cm trade nlp](#trade-nlp) - Execute a trade using natural language.
+- [cm gemini-key get](#gemini-key-get) - Get a Gemini API key.
 
 ### Postman
 
@@ -826,3 +827,20 @@ Generate a Postman collection from the Coinmetro API documentation.
 ```
 
 This command will fetch the latest Coinmetro API documentation and save it to a file named `coinmetro_api.json` in the current directory. You can then import this file into Postman.
+
+### <a name="gemini-key-get"></a> cm gemini-key get
+
+Opens the Google AI Studio page to generate a Gemini API key.
+
+```
+    Syntax:
+    cm gemini-key get
+```
+
+**Example:**
+
+```
+cm gemini-key get
+```
+
+This command will open your default web browser to the Google AI Studio API key generation page. Follow the instructions on that page to create your API key. Once you have your key, set it as an environment variable named `GEMINI_API_KEY` in your system.

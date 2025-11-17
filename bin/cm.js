@@ -16,7 +16,7 @@ if (argv._.length == 0) {
 const command = argv._[0];
 let subcommand = argv._[1];
 
-if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp') && (command !== 'market' || subcommand !== 'ticker') && command !== 'postman') {
+if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp') && (command !== 'market' || subcommand !== 'ticker') && command !== 'postman' && command !== 'gemini-key') {
   auth.check(command, subcommand)
     .then(() => {
       const api = require('../lib/api')(env.val('demo') === 'true');
@@ -75,6 +75,8 @@ if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp') && (co
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService, argv.debug);
   } else if (command === 'market' && subcommand === 'ticker') {
     commandPromise = context[subcommand](api, argv._[2], argv); // Pass specific pair arg
+  } else if (command === 'gemini-key') {
+    commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
   }
   else {
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
