@@ -2,10 +2,10 @@
 
 const c = require('ansi-colors');
 const auth = require('../lib/auth');
-const utils = require('../lib/utils')(api);
 const env = require('../lib/env');
 const api = require('../lib/api')(env.val('demo') === 'true'); // Initialize API here
 const constants = require('../lib/constants')(api); // Pass API to constants
+const utils = require('../lib/utils')(api); // Initialize utils here, after api and constants
 
 const argv = require('yargs').argv;
 
@@ -68,27 +68,11 @@ if (command !== 'gemini' && (command !== 'trade' || subcommand !== 'nlp') && (co
     return;
   }
 
-  // Create a simple AI service for now
-  const aiService = {
-    askQuestion: async (prompt) => {
-      // In a real scenario, this would call a Gemini AI model
-      return `AI response to: "${prompt}" (simulated)`;
-    },
-    parseTradeCommand: async (input) => {
-      // In a real scenario, this would call a Gemini AI model to parse the trade command
-      return {
-        action: 'buy',
-        quantity: '100',
-        currency: 'eur',
-        counterCurrency: 'btc',
-        price: '10000'
-      };
-    }
-  };
+  const aiService = require('../lib/aiService')(api, argv);
 
   let commandPromise;
   if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
-    commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService);
+    commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService, argv.debug);
   } else if (command === 'market' && subcommand === 'ticker') {
     commandPromise = context[subcommand](api, argv._[2], argv); // Pass specific pair arg
   }
