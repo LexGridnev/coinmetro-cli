@@ -1,100 +1,7 @@
-const { exec } = require('child_process');
+
+const path = require('path');
 const c = require('ansi-colors');
-
-const mockCliPath = path.resolve(__dirname, '../bin/cm.js');
-const mockTempDir = path.resolve(__dirname, '../.temp_e2e');
-const mockEnvFilePath = path.join(mockTempDir, 'env');
-const mockCmdFilePath = path.join(mockTempDir, 'cmd');
-const mockPostmanFilePath = path.join(mockTempDir, 'coinmetro_api.json');
-
-// Mock the env module to use a temporary directory for E2E tests
-jest.mock('../lib/env', () => {
-  const fs = require('fs'); // Moved fs import here
-  const path = require('path'); // Moved path import here
-  const actualEnv = jest.requireActual('../lib/env');
-  return {
-    ...actualEnv,
-    val: jest.fn((prop) => {
-      const config = actualEnv.readObj(mockEnvFilePath);
-      return Object.prototype.hasOwnProperty.call(config, prop) ? config[prop] : '';
-    }),
-    update: jest.fn((configObj) => {
-      const config = actualEnv.readObj(mockEnvFilePath);
-      Object.keys(configObj).forEach(key => {
-        config[key] = configObj[key];
-      });
-      actualEnv.writeObj(mockEnvFilePath, config);
-    }),
-    readObj: jest.fn(() => {
-      if (!fs.existsSync(mockTempDir)) {
-        fs.mkdirSync(mockTempDir, { recursive: true });
-      }
-      const filepath = mockEnvFilePath;
-      if (!fs.existsSync(filepath)) {
-        fs.writeFileSync(filepath, '');
-      }
-      const rows = fs.readFileSync(filepath).toString().split('\n');
-      const obj = {};
-      rows.forEach(row => {
-        let [prop, value] = row.split('=');
-        if (prop) {
-          obj[prop] = value;
-        }
-      });
-      return obj;
-    }),
-    writeObj: jest.fn((filename, obj) => {
-      if (!fs.existsSync(mockTempDir)) {
-        fs.mkdirSync(mockTempDir, { recursive: true });
-      }
-      const filepath = mockEnvFilePath; // Always write to mockEnvFilePath for simplicity in mock
-      const rows = [];
-      Object.keys(obj).map(key => {
-        rows.push(`${key}=${obj[key]}`);
-      });
-      fs.writeFileSync(filepath, rows.join('\n'));
-    })
-  };
-});
-
-// Mock the utils module to use a temporary directory for E2E tests
-jest.mock('../lib/utils', () => {
-  const fs = require('fs'); // Moved fs import here
-  const path = require('path'); // Moved path import here
-  const actualUtils = jest.requireActual('../lib/utils');
-  return {
-    ...actualUtils,
-    readObj: jest.fn((filename) => {
-      if (!fs.existsSync(mockTempDir)) {
-        fs.mkdirSync(mockTempDir, { recursive: true });
-      }
-      const filepath = path.join(mockTempDir, filename);
-      if (!fs.existsSync(filepath)) {
-        fs.writeFileSync(filepath, '');
-      }
-      const rows = fs.readFileSync(filepath).toString().split('\n');
-      const obj = {};
-      rows.forEach(row => {
-        let [prop, value] = row.split('=');
-        if (prop) {
-          obj[prop] = value;
-        }
-      });
-      return obj;
-    }),
-    writeObj: jest.fn((filename, obj) => {
-      if (!fs.existsSync(mockTempDir)) {
-        fs.mkdirSync(mockTempDir, { recursive: true });
-      }
-      const filepath = path.join(mockTempDir, filename);
-      const rows = [];
-      Object.keys(obj).map(key => {
-        rows.push(`${key}=${obj[key]}`);
-      });
-      fs.writeFileSync(filepath, rows.join('\n'));
-    })
-  };
-});
+const fs = require('fs');
 
 // Mock the api module to prevent real network calls during E2E tests
 jest.mock('../lib/api', () => ({
@@ -207,10 +114,107 @@ jest.mock('../lib/aiService', () => ({
   })
 }));
 
+const mockCliPath = path.resolve(__dirname, '../bin/cm.js');
+const mockTempDir = path.resolve(__dirname, '../.temp_e2e');
+const mockEnvFilePath = path.join(mockTempDir, 'env');
+const mockCmdFilePath = path.join(mockTempDir, 'cmd');
+const mockPostmanFilePath = path.join(mockTempDir, 'coinmetro_api.json');
+
+// Mock the env module to use a temporary directory for E2E tests
+jest.mock('../lib/env', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const actualEnv = jest.requireActual('../lib/env');
+  const mockEnvFilePath = path.join(__dirname, '../.temp_e2e', 'env');
+
+  const readObj = () => {
+    if (!fs.existsSync(mockEnvFilePath)) {
+      return {};
+    }
+    const rows = fs.readFileSync(mockEnvFilePath).toString().split('\n');
+    const obj = {};
+    rows.forEach(row => {
+      let [prop, value] = row.split('=');
+      if (prop) {
+        obj[prop] = value;
+      }
+    });
+    return obj;
+  };
+
+  return {
+    ...actualEnv,
+    val: jest.fn((prop) => {
+      const config = readObj();
+      return Object.prototype.hasOwnProperty.call(config, prop) ? config[prop] : '';
+    }),
+    update: jest.fn((configObj) => {
+      const config = readObj();
+      Object.keys(configObj).forEach(key => {
+        config[key] = configObj[key];
+      });
+      actualEnv.writeObj(mockEnvFilePath, config);
+    }),
+    readObj: jest.fn(readObj),
+    writeObj: jest.fn((filename, obj) => {
+      if (!fs.existsSync(path.dirname(mockEnvFilePath))) {
+        fs.mkdirSync(path.dirname(mockEnvFilePath), { recursive: true });
+      }
+      const rows = [];
+      Object.keys(obj).map(key => {
+        rows.push(`${key}=${obj[key]}`);
+      });
+      fs.writeFileSync(mockEnvFilePath, rows.join('\n'));
+    })
+  };
+});
+
+jest.mock('../lib/utils', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const actualUtils = jest.requireActual('../lib/utils');
+  const mockCmdFilePath = path.join(__dirname, '../.temp_e2e', 'cmd');
+
+  const readObj = (filename) => {
+    const filePath = filename === 'cmd' ? mockCmdFilePath : path.join(__dirname, '../.temp_e2e', filename);
+    if (!fs.existsSync(filePath)) {
+      return {};
+    }
+    const rows = fs.readFileSync(filePath).toString().split('\n');
+    const obj = {};
+    rows.forEach(row => {
+      let [prop, value] = row.split('=');
+      if (prop) {
+        obj[prop] = value;
+      }
+    });
+    return obj;
+  };
+
+  const writeObj = (filename, obj) => {
+    const filePath = filename === 'cmd' ? mockCmdFilePath : path.join(__dirname, '../.temp_e2e', filename);
+    if (!fs.existsSync(path.dirname(filePath))) {
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    }
+    const rows = [];
+    Object.keys(obj).map(key => {
+      rows.push(`${key}=${obj[key]}`);
+    });
+    fs.writeFileSync(filePath, rows.join('\n'));
+  };
+
+  return {
+    ...actualUtils,
+    readObj: jest.fn(readObj),
+    writeObj: jest.fn(writeObj)
+  };
+});
+
 describe('E2E Tests for coinmetro-cli', () => {
   jest.setTimeout(30000); // Increase timeout for E2E tests
 
   beforeEach(() => {
+    const fs = require('fs');
     // Clear and recreate temporary directory for each test
       fs.rmSync(mockTempDir, { recursive: true, force: true });
     fs.mkdirSync(mockTempDir, { recursive: true });
@@ -220,6 +224,7 @@ describe('E2E Tests for coinmetro-cli', () => {
   });
 
   afterAll(() => {
+    const fs = require('fs');
     // Clean up temporary directory after all tests
     if (fs.existsSync(mockTempDir)) {
       fs.rmSync(mockTempDir, { recursive: true, force: true });
@@ -228,21 +233,35 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   const runCli = (args = []) => {
     return new Promise((resolve) => {
-      exec(`node ${mockCliPath} ${args.join(' ')}`, { cwd: mockTempDir }, (error, stdout, stderr) => {
-        resolve({ error, stdout, stderr });
+      const { spawn } = require('child_process');
+      const cli = spawn('node', [mockCliPath, ...args], { cwd: mockTempDir });
+      let stdout = '';
+      let stderr = '';
+
+      cli.stdout.on('data', (data) => {
+        stdout += data.toString();
+      });
+
+      cli.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      cli.on('close', (code) => {
+        resolve({ code, stdout, stderr });
       });
     });
   };
 
   // --- General Commands ---
   test('should display help message for unknown command', async () => {
-    const { stdout } = await runCli(['unknown-command']);
-    expect(stdout).toContain('Unknown command');
+    const { stdout, code } = await runCli(['unknown-command']);
+    expect(code).toBe(1);
+    expect(stdout).toContain('Missing command argument');
   });
 
   test('cm ref should display dynamically generated command list', async () => {
-    const { stdout, error } = await runCli(['ref']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['ref']);
+    expect(code).toBe(0);
     expect(stdout).toContain('List of available commands and subcommands:');
     expect(stdout).toContain('Authentication and mode');
     expect(stdout).toContain('  cm auth demo - activate demo mode');
@@ -257,8 +276,8 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   // --- Gemini Commands ---
   test('gemini ask should return a simulated AI response', async () => {
-    const { stdout, error } = await runCli(['gemini', 'ask', '"What is the weather?"']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['gemini', 'ask', '"What is the weather?"']);
+    expect(code).toBe(0);
     expect(stdout).toContain('AI response for: What is the weather?');
     expect(require('../lib/aiService').ask).toHaveBeenCalledWith('What is the weather?');
   });
@@ -267,8 +286,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('trade open should list open orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'open']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'open']);
+    expect(code).toBe(0);
     expect(stdout).toContain('mock_open_order_1');
     expect(stdout).toContain('mock_open_order_2');
     expect(require('../lib/api').getOpenOrders).toHaveBeenCalled();
@@ -277,8 +296,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('trade history should list filled orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'history']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'history']);
+    expect(code).toBe(0);
     expect(stdout).toContain('mock_history_order_1');
     expect(stdout).toContain('mock_history_order_2');
     expect(require('../lib/api').getOrderHistory).toHaveBeenCalled();
@@ -287,8 +306,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('trade sell should send a sell order', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'sell', '0.01', 'BTC', '@50000', 'EUR']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'sell', '0.01', 'BTC', '@50000', 'EUR']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success!');
     expect(stdout).toContain('mock_order_id');
     expect(require('../lib/api').sendOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -306,8 +325,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('trade mcsell should send multiple sell orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'msell', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'msell', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success! The following orders were created:');
     expect(require('../lib/api').sendOrder).toHaveBeenCalledTimes(2);
     expect(require('../lib/api').sendOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -323,8 +342,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('trade cancel should cancel a single order', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'cancel', 'mock_order_id_to_cancel']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'cancel', 'mock_order_id_to_cancel']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Successfully canceled order mock_order_id_to_cancel');
     expect(require('../lib/api').cancelOrder).toHaveBeenCalledWith('mock_order_id_to_cancel');
   });
@@ -338,8 +357,8 @@ describe('E2E Tests for coinmetro-cli', () => {
       { orderID: 'order_2', buyingCurrency: 'ETH', sellingCurrency: 'EUR', buyingQty: 0.1, sellingQty: 300, creationTime: Date.now(), price: 3000 },
       { orderID: 'order_3', buyingCurrency: 'BTC', sellingCurrency: 'EUR', buyingQty: 0.005, sellingQty: 250, creationTime: Date.now(), price: 50000 }
     ]);
-    const { stdout, error } = await runCli(['trade', 'mcancel', 'BTCEUR', 'byprice', '@40000-60000']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'mcancel', 'BTCEUR', 'byprice', '@40000-60000']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Canceled 2 orders'); // Expect 2 orders to be canceled
     expect(require('../lib/api').cancelOrder).toHaveBeenCalledTimes(2);
     expect(require('../lib/api').cancelOrder).toHaveBeenCalledWith('order_1');
@@ -348,32 +367,32 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   // --- Market Commands ---
   test('market list should return mocked market data', async () => {
-    const { stdout, error } = await runCli(['market', 'list']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['market', 'list']);
+    expect(code).toBe(0);
     expect(stdout).toContain('BTCEUR');
     expect(stdout).toContain('ETHEUR');
     expect(require('../lib/api').getMarkets).toHaveBeenCalled();
   });
 
   test('market chart should return mocked chart data', async () => {
-    const { stdout, error } = await runCli(['market', 'chart', 'BTCEUR', 'd']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['market', 'chart', 'BTCEUR', 'd']);
+    expect(code).toBe(0);
     expect(stdout).toContain('BTCEUR');
     expect(stdout).toContain('50000'); // Close price from mock
     expect(require('../lib/api').getHistoricalPrices).toHaveBeenCalledWith('BTCEUR', expect.objectContaining({ timeframe: 300000, duration: 86400000 }));
   });
 
   test('market trades should return mocked trade data', async () => {
-    const { stdout, error } = await runCli(['market', 'trades', 'BTCEUR']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['market', 'trades', 'BTCEUR']);
+    expect(code).toBe(0);
     expect(stdout).toContain('BTCEUR');
     expect(stdout).toContain('50000'); // Price from mock
     expect(require('../lib/api').getTrades).toHaveBeenCalledWith('BTCEUR', expect.any(Number));
   });
 
   test('market book should return mocked order book data', async () => {
-    const { stdout, error } = await runCli(['market', 'book', 'BTCEUR']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['market', 'book', 'BTCEUR']);
+    expect(code).toBe(0);
     expect(stdout).toContain('BTCEUR');
     expect(stdout).toContain('Bids');
     expect(stdout).toContain('Asks');
@@ -384,8 +403,8 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   // --- Postman Commands ---
   test('postman generate should create coinmetro_api.json', async () => {
-    const { error } = await runCli(['postman', 'generate']);
-    expect(error).toBeNull();
+    const { code } = await runCli(['postman', 'generate']);
+    expect(code).toBe(0);
     expect(fs.existsSync(mockPostmanFilePath)).toBe(true);
     const fileContent = fs.readFileSync(mockPostmanFilePath, 'utf8');
     expect(fileContent).toContain('"info": {'); // Basic check for JSON content
@@ -393,8 +412,8 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   // --- Auth Commands ---
   test('auth login should successfully log in and store token', async () => {
-    const { stdout, error } = await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['auth', 'login', 'test@example.com', 'password123']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Login successful, token updated (live mode is activated)');
     expect(require('../lib/api').login).toHaveBeenCalledWith('test@example.com', 'password123', null);
     const envContent = require('../lib/env').readObj(mockEnvFilePath);
@@ -402,24 +421,23 @@ describe('E2E Tests for coinmetro-cli', () => {
   });
 
   test('auth login should fail with invalid credentials', async () => {
-    const { stderr, error } = await runCli(['auth', 'login', 'wrong@example.com', 'wrongpass']);
-    expect(error).not.toBeNull();
-    expect(error.code).toBe(1); // Expect non-zero exit code for error
+    const { stderr, code } = await runCli(['auth', 'login', 'wrong@example.com', 'wrongpass']);
+    expect(code).toBe(1); // Expect non-zero exit code for error
     expect(stderr).toContain('Invalid credentials');
     expect(require('../lib/api').login).toHaveBeenCalledWith('wrong@example.com', 'wrongpass', null);
   });
 
   test('auth demo should set demo mode', async () => {
-    const { stdout, error } = await runCli(['auth', 'demo']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['auth', 'demo']);
+    expect(code).toBe(0);
     expect(stdout).toContain('You are now in demo mode! Please login again to update token.');
     const envContent = require('../lib/env').readObj(mockEnvFilePath);
     expect(envContent.demo).toBe('true');
   });
 
   test('auth live should set live mode', async () => {
-    const { stdout, error } = await runCli(['auth', 'live']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['auth', 'live']);
+    expect(code).toBe(0);
     expect(stdout).toContain('You are now in live mode! Please login again to update token.');
     const envContent = require('../lib/env').readObj(mockEnvFilePath);
     expect(envContent.demo).toBe('false');
@@ -427,8 +445,8 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   // --- Cmd Commands ---
   test('cmd store should store a command', async () => {
-    const { stdout, error } = await runCli(['cmd', 'store', '"cm market ticker BTCEUR"', 'myTicker']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['cmd', 'store', '"cm market ticker BTCEUR"', 'myTicker']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Command stored successfully');
     const cmdContent = require('../lib/utils').readObj(mockCmdFilePath);
     expect(cmdContent.myTicker).toBe('cm market ticker BTCEUR');
@@ -437,16 +455,16 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('cmd list should list stored commands', async () => {
     // First store a command
     await runCli(['cmd', 'store', '"cm market ticker BTCEUR"', 'myTicker']);
-    const { stdout, error } = await runCli(['cmd', 'list']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['cmd', 'list']);
+    expect(code).toBe(0);
     expect(stdout).toContain('myTicker: cm market ticker BTCEUR');
   });
 
   test('cmd run should execute a stored command', async () => {
     // First store a command
     await runCli(['cmd', 'store', '"cm market ticker BTCEUR"', 'myTicker']);
-    const { stdout, error } = await runCli(['cmd', 'run', 'myTicker']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['cmd', 'run', 'myTicker']);
+    expect(code).toBe(0);
     expect(stdout).toContain('BTCEUR'); // Output from the executed ticker command
     expect(stdout).toContain('Last Price: 50000');
   });
@@ -454,8 +472,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('cmd del should delete a stored command', async () => {
     // First store a command
     await runCli(['cmd', 'store', '"cm market ticker BTCEUR"', 'myTicker']);
-    const { stdout, error } = await runCli(['cmd', 'del', 'myTicker']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['cmd', 'del', 'myTicker']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Deleted command myTicker');
     const cmdContent = require('../lib/utils').readObj(mockCmdFilePath);
     expect(cmdContent.myTicker).toBeUndefined();
@@ -463,17 +481,16 @@ describe('E2E Tests for coinmetro-cli', () => {
 
   // --- Trade Balance (requires auth) ---
   test('trade balance should fail without auth token', async () => {
-    const { stderr, error } = await runCli(['trade', 'balance']);
-    expect(error).not.toBeNull();
-    expect(error.code).toBe(1);
+    const { stderr, code } = await runCli(['trade', 'balance']);
+    expect(code).toBe(1);
     expect(stderr).toContain('No auth token found');
   });
 
   test('trade balance should show balances with auth token', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'balance']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'balance']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Platform     Available      Total');
     expect(stdout).toContain('BTC');
     expect(stdout).toContain('EUR');
@@ -485,8 +502,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin open should list open margin orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'open']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'open']);
+    expect(code).toBe(0);
     expect(stdout).toContain('mock_margin_open_order_1');
     expect(require('../lib/api').getMarginOpenOrders).toHaveBeenCalled();
   });
@@ -494,8 +511,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin history should list filled margin orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'history']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'history']);
+    expect(code).toBe(0);
     expect(stdout).toContain('mock_margin_history_order_1');
     expect(require('../lib/api').getMarginOrderHistory).toHaveBeenCalled();
   });
@@ -503,8 +520,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin buy should send a margin buy order', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'buy', '0.01', 'BTC', '@50000', 'EUR']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'buy', '0.01', 'BTC', '@50000', 'EUR']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success!');
     expect(stdout).toContain('mock_margin_order_id');
     expect(require('../lib/api').sendMarginOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -523,8 +540,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin sell should send a margin sell order', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'sell', '0.01', 'BTC', '@50000', 'EUR']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'sell', '0.01', 'BTC', '@50000', 'EUR']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success!');
     expect(stdout).toContain('mock_margin_order_id');
     expect(require('../lib/api').sendMarginOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -543,8 +560,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin mbuy should send multiple margin buy orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'mbuy', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'mbuy', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success! The following orders were created:');
     expect(require('../lib/api').sendMarginOrder).toHaveBeenCalledTimes(2);
     expect(require('../lib/api').sendMarginOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -561,8 +578,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin msell should send multiple margin sell orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'msell', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'msell', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success! The following orders were created:');
     expect(require('../lib/api').sendMarginOrder).toHaveBeenCalledTimes(2);
     expect(require('../lib/api').sendMarginOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -579,8 +596,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('margin cancel should cancel a single margin order', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['margin', 'cancel', 'mock_margin_order_id_to_cancel']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'cancel', 'mock_margin_order_id_to_cancel']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Successfully canceled order mock_margin_order_id_to_cancel');
     expect(require('../lib/api').cancelMarginOrder).toHaveBeenCalledWith('mock_margin_order_id_to_cancel');
   });
@@ -594,8 +611,8 @@ describe('E2E Tests for coinmetro-cli', () => {
       { orderID: 'margin_order_2', buyingCurrency: 'ETH', sellingCurrency: 'EUR', buyingQty: 0.1, sellingCurrency: 300, creationTime: Date.now(), price: 3000, margin: true },
       { orderID: 'margin_order_3', buyingCurrency: 'BTC', sellingCurrency: 'EUR', buyingQty: 0.005, sellingQty: 250, creationTime: Date.now(), price: 50000, margin: true }
     ]);
-    const { stdout, error } = await runCli(['margin', 'mcancel', 'BTCEUR', 'byprice', '@40000-60000']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['margin', 'mcancel', 'BTCEUR', 'byprice', '@40000-60000']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Canceled 2 orders'); // Expect 2 orders to be canceled
     expect(require('../lib/api').cancelMarginOrder).toHaveBeenCalledTimes(2);
     expect(require('../lib/api').cancelMarginOrder).toHaveBeenCalledWith('margin_order_1');
@@ -606,8 +623,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('trade buy should send an order', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'buy', '0.01', 'BTC', '@50000', 'EUR']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'buy', '0.01', 'BTC', '@50000', 'EUR']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success!');
     expect(stdout).toContain('mock_order_id');
     expect(require('../lib/api').sendOrder).toHaveBeenCalledWith(expect.objectContaining({
@@ -626,8 +643,8 @@ describe('E2E Tests for coinmetro-cli', () => {
   test('mtrade buy should send multiple orders', async () => {
     // Login first
     await runCli(['auth', 'login', 'test@example.com', 'password123']);
-    const { stdout, error } = await runCli(['trade', 'mbuy', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
-    expect(error).toBeNull();
+    const { stdout, code } = await runCli(['trade', 'mbuy', '0.01', 'BTC', '@49000-51000', 'EUR', '2']);
+    expect(code).toBe(0);
     expect(stdout).toContain('Success! The following orders were created:');
     expect(require('../lib/api').sendOrder).toHaveBeenCalledTimes(2);
     expect(require('../lib/api').sendOrder).toHaveBeenCalledWith(expect.objectContaining({

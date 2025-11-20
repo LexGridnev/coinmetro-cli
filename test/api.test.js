@@ -4,6 +4,10 @@ const axios = require('axios');
 jest.mock('axios');
 
 describe('api.getTicker', () => {
+  beforeEach(() => {
+    axios.get.mockClear();
+  });
+
   it('should fetch ticker data for a given pair', async () => {
     const mockTickerData = {
       '24h': 95944.63,
@@ -19,5 +23,18 @@ describe('api.getTicker', () => {
 
     expect(axios.get).toHaveBeenCalledWith('https://exchange.coinmetro.com/ticker/BTCEUR');
     expect(tickerData).toEqual(mockTickerData);
+  });
+});
+
+describe('api.getTicker error handling', () => {
+  beforeEach(() => {
+    axios.get.mockClear();
+  });
+
+  it('should handle API errors gracefully', async () => {
+    axios.get.mockRejectedValue(new Error('Network Error'));
+
+    const coinmetroApi = api(false);
+    await expect(coinmetroApi.getTicker('INVALIDPAIR')).rejects.toThrow('Network Error');
   });
 });

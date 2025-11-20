@@ -7,7 +7,7 @@ describe('gemini ask', () => {
       askQuestion: jest.fn().mockResolvedValue('AI response to: "test prompt" (simulated)'),
     };
     await ask(null, 'test prompt', {}, mockAiService);
-    expect(mockAiService.askQuestion).toHaveBeenCalledWith('test prompt');
+    expect(mockAiService.askQuestion).toHaveBeenCalledWith('test prompt', undefined);
     expect(log).toHaveBeenCalledWith('AI response to: "test prompt" (simulated)');
     log.mockRestore();
   });
