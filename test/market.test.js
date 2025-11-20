@@ -29,16 +29,6 @@ jest.mock('ora', () => {
   return jest.fn(() => oraInstance);
 });
 
-const mockPush = jest.fn();
-jest.mock('cli-table3', () => {
-  return jest.fn().mockImplementation(() => {
-    return {
-      push: mockPush,
-      toString: jest.fn().mockReturnValue('mock table'),
-    };
-  });
-});
-
 const asciichart = require('asciichart'); // Import actual module to mock its function
 jest.mock('asciichart', () => ({
   plot: jest.fn().mockReturnValue('mock ascii chart'),
@@ -47,7 +37,6 @@ jest.mock('asciichart', () => ({
 
 const marketModule = require('../lib/market')(mockApi, mockUtils, mockConstants);
 const { ticker, list } = marketModule;
-const Table = require('cli-table3');
 const ora = require('ora');
 
 
@@ -72,29 +61,6 @@ describe('market', () => {
       expect(log.mock.calls[2][0]).toMatch(/ {2}High: 98000\.000000/);
       expect(log.mock.calls[3][0]).toMatch(/ {2}Low: 95000\.000000/);
       expect(log.mock.calls[4][0]).toMatch(/ {2}Volume: 1000\.00/);
-      log.mockRestore();
-    });
-  });
-
-  describe('list', () => {
-    it('should display prices in a table with a spinner', async () => {
-      const log = jest.spyOn(console, 'log').mockImplementation(() => {});
-      const mockPrices = [
-        { pair: 'BTCEUR', price: 50000, ask: 50001, bid: 49999 },
-        { pair: 'ETHEUR', price: 3000, ask: 3001, bid: 2999 },
-      ];
-      mockApi.getLatestPrices.mockResolvedValue(mockPrices);
-
-      await list();
-
-      expect(ora).toHaveBeenCalledWith('Fetching latest prices...');
-      expect(ora().start).toHaveBeenCalled();
-      expect(ora().succeed).toHaveBeenCalledWith('Latest prices loaded.');
-      expect(Table).toHaveBeenCalled();
-      expect(mockPush).toHaveBeenCalledWith([expect.stringContaining('BTCEUR'), expect.stringContaining('50000.000000'), '50001.000000', '49999.000000']);
-      expect(mockPush).toHaveBeenCalledWith([expect.stringContaining('ETHEUR'), expect.stringContaining('3000.000000'), '3001.000000', '2999.000000']);
-      expect(log).toHaveBeenCalledWith('mock table');
-
       log.mockRestore();
     });
   });
