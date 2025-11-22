@@ -237,6 +237,8 @@ Here is a list of available commands.
 ### Bot
 
 - [cm bot find-arbitrage](#bot-find-arbitrage) - Analyzes all pairs on the exchange for triangular arbitrage opportunities.
+- [cm bot ma-crossover](#bot-ma-crossover) - Starts a Moving Average Crossover trading bot.
+- [cm bot stop-bot](#bot-stop-bot) - Stops a running bot.
 
 ### Postman
 
@@ -861,5 +863,33 @@ Analyzes all pairs on the exchange for triangular arbitrage opportunities.
 This command will fetch the latest prices for all pairs, and then it will analyze all possible triangular paths to find arbitrage opportunities. If any opportunities are found, they will be printed to the console.
 
 **Note:** This is an experimental feature. Arbitrage opportunities are rare and fleeting. This tool is for analysis purposes only and does not execute any trades.
+
+### <a name="bot-ma-crossover"></a> cm bot ma-crossover
+
+Starts a Moving Average Crossover trading bot. The bot continuously monitors the price of a specified pair, calculates short and long moving averages, and executes buy/sell orders based on crossovers.
+
+```
+    Syntax:
+    cm bot ma-crossover <pair> <amount> <short> <long> <timeframe>
+
+    pair      : required, the trading pair (e.g., BTCEUR)
+    amount    : required, the amount of base currency to trade
+    short     : required, period for the short moving average
+    long      : required, period for the long moving average
+    timeframe : required, timeframe for candles in milliseconds (e.g., 3600000 for 1 hour)
+```
+
+**Note:** This bot runs as a detached process. You can stop it using `cm bot stop-bot`. This is an experimental feature and should be used with caution.
+
+### <a name="bot-stop-bot"></a> cm bot stop-bot
+
+Stops a running Moving Average Crossover trading bot.
+
+```
+    Syntax:
+    cm bot stop-bot
+```
+
+This command will stop the bot process that was started using `cm bot ma-crossover`.
 
 ### Postman
