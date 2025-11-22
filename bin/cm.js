@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const path = require('path');
 const c = require('ansi-colors');
 const auth = require('../lib/auth');
 const env = require('../lib/env');
@@ -103,6 +104,19 @@ if (command !== 'gemini' && (command !== 'market' || subcommand !== 'ticker') &&
     commandPromise = context[subcommand](argv._[2], argv); // Pass specific pair arg
   } else if (command === 'gemini-key') {
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
+  } else if (command === 'ref') {
+    commandPromise = context[subcommand](api, utils, constants);
+  } else if (command === 'bot' && subcommand === 'ma-crossover') {
+    const { execFile } = require('child_process');
+    const args = argv._.slice(2);
+    execFile(process.execPath, [path.join(__dirname, '..', 'start-bot.js'), ...args], (error) => {
+      if (error) {
+        console.error(error);
+      }
+    });
+    commandPromise = Promise.resolve();
+  } else if (command === 'bot' && subcommand === 'stop-bot') {
+    commandPromise = context[subcommand]();
   }
   else {
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
