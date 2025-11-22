@@ -234,6 +234,10 @@ Here is a list of available commands.
 - [cm trade nlp](#trade-nlp) - Execute a trade using natural language.
 - [cm gemini-key get](#gemini-key-get) - Get a Gemini API key.
 
+### Bot
+
+- [cm bot find-arbitrage](#bot-find-arbitrage) - Analyzes all pairs on the exchange for triangular arbitrage opportunities.
+
 ### Postman
 
 - [cm postman generate](#postman-generate) - Generate a Postman collection from the Coinmetro API documentation.
@@ -844,3 +848,18 @@ cm gemini-key get
 ```
 
 This command will open your default web browser to the Google AI Studio API key generation page. Follow the instructions on that page to create your API key. Once you have your key, set it as an environment variable named `GEMINI_API_KEY` in your system.
+
+### <a name="bot-find-arbitrage"></a> cm bot find-arbitrage
+
+Analyzes all pairs on the exchange for triangular arbitrage opportunities.
+
+```
+    Syntax:
+    cm bot find-arbitrage
+```
+
+This command will fetch the latest prices for all pairs, and then it will analyze all possible triangular paths to find arbitrage opportunities. If any opportunities are found, they will be printed to the console.
+
+**Note:** This is an experimental feature. Arbitrage opportunities are rare and fleeting. This tool is for analysis purposes only and does not execute any trades.
+
+### Postman
