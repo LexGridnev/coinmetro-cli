@@ -2,36 +2,14 @@
 
 A quick guide to the recent visual enhancements made to the `coinmetro-cli`.
 
-#### 1. Table View for Market Data
-
-The `cm market list` command now displays market prices in a clean, readable table.
-
-**Command:**
-```bash
-cm market list
-```
-
-**Output Example:**
-*   Includes columns for `Pair`, `Price`, `Ask`, and `Bid`.
-*   Provides a much clearer overview compared to the previous plain text list.
-
-```
-┌───────────────┬───────────────┬───────────────┬───────────────┐
-│ Pair          │ Price         │ Ask           │ Bid           │
-├───────────────┼───────────────┼───────────────┼───────────────┤
-│ BTCEUR        │ 75987.41      │ 75998.96      │ 75975.86      │
-│ ETHEUR        │ 2476.39       │ 2477.11       │ 2475.82       │
-└───────────────┴───────────────┴───────────────┴───────────────┘
-```
-
-#### 2. Enhanced Color-Coded Messages
+#### 1. Enhanced Color-Coded Messages
 
 Status messages are now color-coded for immediate visual feedback:
 *   **Errors:** Displayed in **red**, prefixed with a bold "**Error:**".
 *   **Warnings:** Displayed in **yellow**, prefixed with a bold "**Warning:**" (e.g., Gemini API key missing).
 *   **Success:** Indicated by a green **✔** checkmark from loading spinners.
 
-#### 3. Loading Spinners
+#### 2. Loading Spinners
 
 Asynchronous operations like API calls now display a loading spinner to provide feedback that the application is working.
 
@@ -45,7 +23,7 @@ Asynchronous operations like API calls now display a loading spinner to provide 
 ✔ Latest prices loaded.
 ```
 
-#### 4. ASCII Charts for Historical Data
+#### 3. ASCII Charts for Historical Data
 
 The `cm market chart` command renders historical price data as a terminal-based ASCII chart.
 
