@@ -14,8 +14,9 @@ const argv = require('yargs/yargs')(process.argv.slice(2)).argv;
 const aiService = require('../lib/aiService')(api, argv); // Initialize aiService here
 
 if (argv._.length == 0) {
-  console.log(c.red.bold('Missing command argument'));
-  process.exit(1);
+  const intro = require('../lib/intro');
+  intro.default();
+  process.exit(0);
 }
 const command = argv._[0];
 let subcommand = argv._[1];
