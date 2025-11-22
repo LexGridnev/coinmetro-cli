@@ -21,7 +21,7 @@ if (argv._.length == 0) {
 const command = argv._[0];
 let subcommand = argv._[1];
 
-if (command !== 'gemini' && (command !== 'market' || subcommand !== 'ticker') && command !== 'postman' && command !== 'gemini-key' && command !== 'ref') {
+if (command !== 'gemini' && (command !== 'market' || subcommand !== 'ticker') && command !== 'postman' && command !== 'gemini-key' && command !== 'ref' && command !== 'bot') {
   auth.check(command, subcommand)
     .then(() => {
       const api = require('../lib/api')(env.val('demo') === 'true');
