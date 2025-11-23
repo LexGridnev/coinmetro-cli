@@ -8,7 +8,7 @@
 
 This is the **Coinmetro-CLI**, now supercharged and **Gemini CLI Powered**! Originally a side project by [u2ros](https://github.com/u2ros/coinmetro-cli), this fork has evolved into an intelligent command-line interface for accessing the Coinmetro Crypto Exchange. With deep integration of Gemini AI, it offers advanced natural language processing for intuitive interaction and trading, alongside a robust Postman integration for API documentation. This project is driven by continuous innovation and code enhancements orchestrated by Gemini AI itself, promising a dynamic and intelligent trading experience that pushes the boundaries of AI-assisted command-line interaction.
 
-Coinmetro are a transparent, regulations compliant exchange that should appeal to newbies and pros. Visit [coinmetro.com](https://coinmetro.com/?ref=lexgri) to learn more about the different products they offer.
+Coinmetro is a transparent, regulations compliant exchange that should appeal to newbies and pros. Visit [coinmetro.com](https://coinmetro.com/?ref=lexgri) to learn more about the different products they offer.
 
 Please note this is not an official Coinmetro product, it is in early stages, so use at your own risk or use demo mode. The application does not send your credentials to any third party in any way (feel free to examine the source)
 
@@ -126,7 +126,7 @@ The syntax of commands follows this convention:
     cm trade balance
 ```
 
-Some args are optional and my not be needed. Use help option with any subcommand to learn what the defaults are, or check the reference below. If you need help with a specific command you can use:
+Some args are optional and may not be needed. Use help option with any subcommand to learn what the defaults are, or check the reference below. If you need help with a specific command you can use:
 
 ```
     cm <command> <subcommand> ?
@@ -136,7 +136,7 @@ Some args are optional and my not be needed. Use help option with any subcommand
     cm trade mbuy ?
 
 ```
-*Tip: Pairs and currencies are printed in upper case. When inputing you can use lower case to speed up typing. xcm instead of XCM*
+*Tip: Pairs and currencies are printed in upper case. When inputting, you can use lower case to speed up typing. xcm instead of XCM*
 
 *Tip: You can have multiple terminal windows opened and use them for issuing different commands*
 
@@ -144,7 +144,7 @@ Some args are optional and my not be needed. Use help option with any subcommand
 
 There are two types of errors that can occur:
 
-- server errors which will be the result of semantically incorrrect arguments that are denied by the coinmetro servers
+- server errors which will be the result of semantically incorrect arguments that are denied by the coinmetro servers
 - argument errors which will happen when the user inputs invalid, missing or incorrect arguments
 
 An error message will be printed and here are the most common error messages and what to do
@@ -181,7 +181,7 @@ Here is a list of available commands.
 
 ### Quick reference
 
-- [cm ref](#cmd-ref) - prints out this list
+- [cm ref](#cmd-ref) - Prints out this list
 
 ### Authentication and mode
 
@@ -246,7 +246,7 @@ Here is a list of available commands.
 
 ### <a name="cmd-ref"></a> cm ref
 
-Print q quick comand reference
+Prints a quick command reference
 
 ```
     Syntax:
