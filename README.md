@@ -230,6 +230,8 @@ Here is a list of available commands.
 
 ### Gemini
 
+- [cm gemini login](#gemini-login) - Login to Gemini.
+- [cm gemini logout](#gemini-logout) - Logout from Gemini.
 - [cm gemini ask](#gemini-ask) - Ask a question to the Gemini AI.
 - [cm trade nlp](#trade-nlp) - Execute a trade using natural language.
 - [cm gemini-key get](#gemini-key-get) - Get a Gemini API key.
@@ -782,6 +784,26 @@ Run a command using its shorthand name
     cm cmd run mylogincmd   // this will run a command called mylogincmd which will presumably perform the login
 ```
 
+### <a name="gemini-login"></a> cm gemini login
+
+Saves your Gemini API key for future use.
+
+```
+    Syntax:
+    cm gemini login <api_key>
+
+    api_key: required, your Gemini API key
+```
+
+### <a name="gemini-logout"></a> cm gemini logout
+
+Removes your saved Gemini API key.
+
+```
+    Syntax:
+    cm gemini logout
+```
+
 ### <a name="gemini-ask"></a> cm gemini ask
 
 Ask a question to the Gemini AI.
@@ -796,15 +818,9 @@ Ask a question to the Gemini AI.
 *   `<your question>`: The question you want to ask Gemini.
 *   `--debug`: An optional flag to show the exact prompt being sent to the Gemini service.
 
-**Example:**
-
-```
-cm gemini ask "What is the current price of Bitcoin?" --debug
-```
-
 **Authentication:**
 
-The Gemini features in this CLI do not require any separate login or authentication.
+This command requires a Gemini API key. You can either set the `GEMINI_API_KEY` environment variable, or save your API key using the `cm gemini login` command.
 
 ### <a name="trade-nlp"></a> cm trade nlp
 
@@ -851,7 +867,7 @@ cm gemini-key get
 
 This command will open your default web browser to the Google AI Studio API key generation page. Follow the instructions on that page to create your API key. Once you have your key, set it as an environment variable named `GEMINI_API_KEY` in your system.
 
-### <a name="bot-find-arbitrage"></a> cm bot find-arbitrage
+### Bot
 
 Analyzes all pairs on the exchange for triangular arbitrage opportunities.
 

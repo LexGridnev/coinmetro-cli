@@ -98,7 +98,9 @@ if (command !== 'gemini' && (command !== 'market' || subcommand !== 'ticker') &&
   const aiService = require('../lib/aiService')(api, argv);
 
   let commandPromise;
-  if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
+  if (command === 'gemini' && (subcommand === 'login' || subcommand === 'logout')) {
+    commandPromise = context[subcommand](...argv._.slice(2));
+  } else if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
     commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService, argv.debug);
   } else if (command === 'market' && subcommand === 'ticker') {
     commandPromise = context[subcommand](argv._[2], argv); // Pass specific pair arg
