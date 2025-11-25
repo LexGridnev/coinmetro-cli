@@ -117,6 +117,9 @@ if (command !== 'gemini' && (command !== 'market' || subcommand !== 'ticker') &&
     });
     child.unref();
     commandPromise = Promise.resolve();
+  } else if (command === 'bot' && subcommand === 'bollinger') {
+    const [pair, amount, period, stddev, timeframe] = argv._.slice(2);
+    commandPromise = context[subcommand](pair, Number(amount), Number(period), Number(stddev), Number(timeframe));
   } else if (command === 'bot' && subcommand === 'stop-bot') {
     commandPromise = context[subcommand]();
   }
