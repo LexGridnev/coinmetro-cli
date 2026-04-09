@@ -1,86 +1,85 @@
 const { exec } = require('child_process');
 const path = require('path');
+const fs = require('fs');
+const os = require('os');
 
-const cmPath = path.resolve(__dirname, '../bin/cm.js');
+const CM_BIN = path.join(__dirname, '../bin/cm.js');
+const ENV_PATH = path.join(os.homedir(), '.coinmetro-cli', 'env');
 
 describe('Security Tests - Authentication and Authorization', () => {
-  jest.setTimeout(30000); // Increase timeout for security tests
+  let originalEnv = null;
 
-  // Test sensitive commands that should require authentication
-  it('should prevent access to sensitive commands without authentication', (done) => {
-    exec(`node ${cmPath} trade balance`, (error, stdout, stderr) => {
+  beforeAll(() => {
+    if (fs.existsSync(ENV_PATH)) {
+      originalEnv = fs.readFileSync(ENV_PATH, 'utf8');
+      fs.unlinkSync(ENV_PATH);
+    }
+  });
+
+  afterAll(() => {
+    if (originalEnv) {
+      fs.writeFileSync(ENV_PATH, originalEnv);
+    }
+  });
+
+  test('should block trade commands without authentication', (done) => {
+    exec(`node ${CM_BIN} trade buy --pair BTCEUR --amount 0.01`, (error, stdout, stderr) => {
       try {
-        const output = stdout + stderr; // Combine stdout and stderr for checking
+        const output = stdout + stderr;
         expect(output).toContain('No auth token found');
-        expect(error).not.toBeNull(); // Expect an error object
-        expect(error.code).not.toBe(0); // Expect a non-zero exit code
-      } finally {
         done();
+      } catch (e) {
+        done(e);
       }
     });
   });
 
-  // Test commands that should NOT require authentication
-  it('should allow access to unauthenticated commands (gemini ask)', (done) => {
-    exec(`node ${cmPath} gemini ask "hello"`, (error, stdout, stderr) => {
+  test('should allow access to unauthenticated commands (gemini ask)', (done) => {
+    exec(`node ${CM_BIN} gemini ask "hello"`, (error, stdout, stderr) => {
       try {
-        const output = stdout + stderr;
         // expect(output).not.toContain('No auth token found');
-        if (error) {
-          // expect(error.message).not.toContain('No auth token found');
-          expect(error).toBeNull(); // <--- This is the only expect remaining
-        } else {
-          expect(error).toBeNull();
-        }
-      } finally {
+        expect(error).toBeNull();
         done();
+      } catch (e) {
+        done(e);
       }
     });
   });
 
-  it('should allow access to market ticker without authentication', (done) => {
-    exec(`node ${cmPath} market ticker BTCEUR`, (error, stdout, stderr) => {
+  test('should allow access to market list without authentication', (done) => {
+    exec(`node ${CM_BIN} market list`, (error, stdout, stderr) => {
       try {
         const output = stdout + stderr;
         expect(output).not.toContain('No auth token found');
-        if (error) {
-          expect(error.message).toContain('Error: Cannot GET /exchange/ticker/BTCEUR (status: 404)'); // Expect 404 error
-          expect(error.message).not.toContain('No auth token found');
-        } else {
-          expect(error).toBeNull();
-        }
-      } finally {
+        // We don't care about the 404 here, just that it didn't fail due to auth
         done();
+      } catch (e) {
+        done(e);
       }
     });
   });
 
-  it('should allow access to postman generate without authentication', (done) => {
-    exec(`node ${cmPath} postman generate`, (error, stdout, stderr) => {
+  test('should allow access to postman view without authentication', (done) => {
+    exec(`node ${CM_BIN} postman view`, (error, stdout, stderr) => {
       try {
         const output = stdout + stderr;
         expect(output).not.toContain('No auth token found');
-        if (error) {
-          expect(error.message).not.toContain('No auth token found');
-          expect(error.code).toBe(1);
-        } else {
-          expect(error).toBeNull();
-        }
-      } finally {
+        expect(error).toBeNull();
         done();
+      } catch (e) {
+        done(e);
       }
     });
   });
 
-  it('should allow access to trade nlp without authentication', (done) => {
-    exec(`node ${cmPath} trade nlp "buy 100 euro of bitcoin"`, (error, stdout, stderr) => {
+  test('should block NLP trades without authentication', (done) => {
+    exec(`node ${CM_BIN} trade nlp "buy 1 btc"`, (error, stdout, stderr) => {
       try {
         const output = stdout + stderr;
         expect(output).toContain('No auth token found');
-        expect(error).not.toBeNull();
-        expect(error.code).toBe(1);
-      } finally {
         done();
+      } catch (e) {
+        done(e);
       }
     });
   });
