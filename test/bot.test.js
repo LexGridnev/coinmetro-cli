@@ -1,4 +1,4 @@
-const { AIService } = require('../lib/aiService');
+const AIService = require('../lib/aiService');
 
 describe('AI Trading Bot Logic', () => {
   let aiService;
