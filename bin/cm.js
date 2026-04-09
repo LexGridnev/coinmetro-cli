@@ -1,146 +1,111 @@
 #!/usr/bin/env node
 
-const path = require('path');
-const c = require('ansi-colors');
-const auth = require('../lib/auth');
-const env = require('../lib/env');
-const api = require('../lib/api')(env.val('demo') === 'true'); // Initialize API here
-const getConstants = require('../lib/constants'); // Import the function
-const constants = getConstants(api); // Initialize constants
-const getUtils = require('../lib/utils'); // Import the function
-const utils = getUtils(api); // Initialize utils
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
+const { intro } = require('../lib/intro');
+const { auth } = require('../lib/auth');
+const { trade } = require('../lib/trade');
+const { bot } = require('../lib/bot');
+const { market } = require('../lib/market');
+const { postman } = require('../lib/postman');
+const { mcp } = require('../lib/mcp');
+const { gemini } = require('../lib/gemini');
 
-const argv = require('yargs/yargs')(process.argv.slice(2)).argv;
-
-const aiService = require('../lib/aiService')(api, argv); // Initialize aiService here
-
-if (argv._.length == 0) {
-  const intro = require('../lib/intro');
-  intro.default();
-  process.exit(0);
-}
-const command = argv._[0];
-let subcommand = argv._[1];
-
-if (command !== 'gemini' && (command !== 'market' || subcommand !== 'ticker') && command !== 'postman' && command !== 'gemini-key' && command !== 'ref' && command !== 'bot') {
-  auth.check(command, subcommand)
-    .then(() => {
-      const api = require('../lib/api')(env.val('demo') === 'true');
-      let context;
-      try {
-        const requiredModule = require(`../lib/${command}.js`);
-        if (typeof requiredModule === 'function') {
-          context = requiredModule(api, utils, constants);
-        } else {
-          context = requiredModule;
-        }
-      }
-      catch (err) {
-        console.log(err);
-        throw `Invalid base command '${command}'`;
-      }
-
-      if (typeof subcommand === 'undefined') subcommand = 'default';
-      if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`;
-
-      if (argv._[2] === '?') {
-        utils.printHelp(context, subcommand);
-        return;
-      }
-
-      let commandPromise;
-      if (command === 'trade' && subcommand === 'nlp') { // Specific handling for trade nlp
-        commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService);
-      } else {
-        commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
-      }
-
-      commandPromise
-        .then(() => {
-          //we're done!
-        })
-        .catch(err => {
-          if (err.response) { // semantic server error
-            console.error(c.red.bold('Error:'), c.red(`${err.response.data.message} (status: ${err.response.status})`));
-          } else { // user input error (probably)
-            console.error(c.red.bold('Error:'), err.message || err);
-          }
-        });
+const argv = yargs(hideBin(process.argv))
+  .command('auth', 'Authenticate with Coinmetro', (yargs) => {
+    return yargs.option('email', {
+      alias: 'e',
+      type: 'string',
+      description: 'Coinmetro email'
+    }).option('password', {
+      alias: 'p',
+      type: 'string',
+      description: 'Coinmetro password'
+    }).option('token', {
+      alias: 't',
+      type: 'string',
+      description: '2FA token'
+    }).option('gemini', {
+      alias: 'g',
+      type: 'string',
+      description: 'Gemini AI API Key'
+    });
+  }, (argv) => {
+    auth(argv);
+  })
+  .command('balances', 'Get account balances', {}, (argv) => {
+    market.balances(argv);
+  })
+  .command('trade <action>', 'Execute a trade', (yargs) => {
+    return yargs.positional('action', {
+      describe: 'buy, sell, or nlp',
+      type: 'string'
     })
-    .catch((err) => {
-      console.error(c.red.bold('Authentication Error:'), c.red(err.message));
-      throw err;
+    .command('nlp <query>', 'Trade using natural language', (yargs) => {
+      return yargs.positional('query', {
+        describe: 'Trade description (e.g. \"buy 100 eur of btc\")',
+        type: 'string'
+      });
     });
-} else {
-  const api = require('../lib/api')(env.val('demo') === 'true');
-  let context;
-  try {
-    const requiredModule = require(`../lib/${command}.js`);
-    if (typeof requiredModule === 'function') {
-      context = requiredModule(api, utils, constants);
-    } else {
-      context = requiredModule;
-    }
-  }
-  catch (err) {
-    console.error(err.message);
-    throw err;
-  }
-
-  if (typeof subcommand === 'undefined') subcommand = 'default';
-  if (!context[subcommand]) throw `Invalid '${command}' subcommand: '${subcommand || ''}'`;
-
-  if (argv._[2] === '?') {
-    utils.printHelp(context, subcommand);
-    return;
-  }
-
-  const aiService = require('../lib/aiService')(api, argv);
-
-  let commandPromise;
-  if (command === 'gemini' && (subcommand === 'login' || subcommand === 'logout')) {
-    commandPromise = context[subcommand](...argv._.slice(2));
-  } else if (command === 'gemini' || (command === 'trade' && subcommand === 'nlp')) {
-    commandPromise = context[subcommand](api, ...argv._.slice(2), argv, aiService, argv.debug);
-  } else if (command === 'market' && subcommand === 'ticker') {
-    commandPromise = context[subcommand](argv._[2], argv); // Pass specific pair arg
-  } else if (command === 'gemini-key') {
-    commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
-  } else if (command === 'ref') {
-    commandPromise = context[subcommand](api, utils, constants);
-  } else if (command === 'bot' && (subcommand === 'ma-crossover' || subcommand === 'rsi')) {
-    const { fork } = require('child_process');
-    const args = argv._.slice(1);
-    const child = fork(path.join(__dirname, '..', 'start-bot.js'), args, {
-      detached: true,
-      stdio: 'ignore',
+  }, (argv) => {
+    trade(argv);
+  })
+  .command('bot <action>', 'Manage trading bots', (yargs) => {
+    return yargs.positional('action', {
+      describe: 'list, start, stop',
+      type: 'string'
     });
-    child.unref();
-    commandPromise = Promise.resolve();
-  } else if (command === 'bot' && subcommand === 'bollinger') {
-    const [pair, amount, period, stddev, timeframe] = argv._.slice(2);
-    commandPromise = context[subcommand](pair, Number(amount), Number(period), Number(stddev), Number(timeframe));
-  } else if (command === 'bot' && subcommand === 'stop-bot') {
-    commandPromise = context[subcommand]();
-  }
-  else {
-    commandPromise = context[subcommand](api, ...argv._.slice(2), argv);
-  }
-
-  commandPromise
-    .then(() => {
-    //we're done!
-    })
-    .catch(err => {
-      if (err.message && err.message.includes('GEMINI_API_KEY environment variable is not set')) {
-        // This is a non-fatal warning, do not re-throw
-        console.error(c.yellow.bold('Warning:'), c.yellow(err.message));
-      } else if (err.response) { // semantic server error
-        console.error(c.red.bold('Error:'), c.red(`${err.response.data.message} (status: ${err.response.status})`));
-        throw err;
-      } else { // user input error (probably)
-        console.error(c.red.bold('Error:'), err.message);
-        throw err;
-      }
+  }, (argv) => {
+    bot(argv);
+  })
+  .command('market <action>', 'Market data', (yargs) => {
+    return yargs.positional('action', {
+      describe: 'ticker, book',
+      type: 'string'
     });
+  }, (argv) => {
+    market.info(argv);
+  })
+  .command('gemini <action>', 'Gemini AI features', (yargs) => {
+    return yargs.positional('action', {
+      describe: 'analyze',
+      type: 'string'
+    }).option('pair', {
+      alias: 'p',
+      type: 'string',
+      description: 'Trading pair to analyze'
+    });
+  }, (argv) => {
+    gemini(argv);
+  })
+  .command('postman <action>', 'Coinmetro Postman API documentation', (yargs) => {
+    return yargs.positional('action', {
+      describe: 'view, search, detail',
+      type: 'string'
+    }).option('query', {
+      alias: 'q',
+      type: 'string',
+      description: 'Search query or request name'
+    });
+  }, (argv) => {
+    postman(argv);
+  })
+  .command('mcp <action>', 'Model Context Protocol (MCP) Integration', (yargs) => {
+    return yargs.positional('action', {
+      describe: 'start',
+      type: 'string'
+    });
+  }, (argv) => {
+    mcp(argv);
+  })
+  .option('debug', {
+    alias: 'd',
+    type: 'boolean',
+    description: 'Run in debug mode'
+  })
+  .help()
+  .argv;
+
+if (process.argv.length <= 2) {
+  intro();
 }

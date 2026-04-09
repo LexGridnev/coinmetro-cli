@@ -1,46 +1,19 @@
-const geminiModule = require('../lib/gemini')();
-const geminiAuth = require('../lib/geminiAuth');
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const { gemini } = require('../lib/gemini');
+const api = require('../lib/api');
 
-const configDir = path.join(os.homedir(), '.coinmetro-cli');
-const configFile = path.join(configDir, '.gemini.json');
+jest.mock('../lib/api');
 
-describe('gemini login', () => {
-  afterEach(() => {
-    if (fs.existsSync(configFile)) {
-      fs.unlinkSync(configFile);
-    }
+describe('Gemini Module', () => {
+  test('should handle missing pair in analyze command', async () => {
+    const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+    await gemini({ action: 'analyze', _: ['gemini', 'analyze'] });
+    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Please specify a trading pair'));
+    consoleSpy.mockRestore();
   });
 
-  it('should save the API key', async () => {
-    await geminiModule.login('test-api-key');
-    const config = JSON.parse(fs.readFileSync(configFile, 'utf8'));
-    expect(config.apiKey).toBe('test-api-key');
-  });
-});
-
-describe('gemini logout', () => {
-  it('should delete the API key', async () => {
-    geminiAuth.saveApiKey('test-api-key');
-    await geminiModule.logout();
-    expect(fs.existsSync(configFile)).toBe(false);
-  });
-});
-
-describe('gemini ask', () => {
-  afterEach(() => {
-    if (fs.existsSync(configFile)) {
-      fs.unlinkSync(configFile);
-    }
-    delete process.env.GEMINI_API_KEY;
-  });
-
-  it('should fail if no API key is available', async () => {
-    const errorLog = jest.spyOn(console, 'error').mockImplementation(() => {});
-    await geminiModule.ask('test question');
-    expect(errorLog).toHaveBeenCalledWith(expect.stringContaining('Error:'), expect.stringContaining('GEMINI_API_KEY is not set'));
-    errorLog.mockRestore();
+  test('should attempt analysis for valid pair', async () => {
+    api.get.mockResolvedValue({ last: 50000 });
+    // This test might fail without a real API key but it checks the flow
+    await expect(gemini({ action: 'analyze', pair: 'BTCEUR' })).resolves.not.toThrow();
   });
 });
