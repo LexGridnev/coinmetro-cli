@@ -11,7 +11,7 @@ const trade = require('../lib/trade')(api, auth, utils, constants);
 const market = require('../lib/market')(api, utils, constants);
 const { postman } = require('../lib/postman');
 const { mcp } = require('../lib/mcp');
-const { gemini } = require('../lib/gemini');
+const gemini = require('../lib/gemini')(api);
 
 const argv = yargs(hideBin(process.argv))
   .middleware(async (argv) => {
@@ -91,7 +91,7 @@ const argv = yargs(hideBin(process.argv))
     yargs.positional('action', { choices: ['start'], describe: 'Action' });
   }, async (argv) => {
     if (argv.action === 'start') {
-      await mcp.start();
+      mcp(argv);
     }
   })
   .command('gemini <action>', 'Gemini AI features', (yargs) => {
