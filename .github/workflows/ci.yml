@@ -15,7 +15,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: npm
-      - run: npm ci
+      # No lockfile in repo yet (previous one was stale/corrupt).
+      # Once a trustworthy package-lock.json is committed (run `npm install`
+      # on a clean machine), this automatically switches to `npm ci`.
+      - run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install --no-audit --no-fund; fi
       - run: npm run lint
       - run: npm test
