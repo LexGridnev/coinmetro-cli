@@ -1,6 +1,6 @@
 {
   "name": "coinmetro-cli",
-  "version": "0.5.9",
+  "version": "0.6.0",
   "description": "Coinmetro CLI interface, now supercharged with Gemini AI and maintained by LexGridnev",
   "main": "bin/cm.js",
   "scripts": {
@@ -48,5 +48,8 @@
     "targets": [
       "host"
     ]
+  },
+  "engines": {
+    "node": ">=20.19"
   }
 }
