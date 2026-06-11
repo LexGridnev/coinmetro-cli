@@ -2,7 +2,7 @@
 module.exports = [
   {
     languageOptions: {
-      ecmaVersion: 2017,
+      ecmaVersion: 2022,
       globals: {
         es6: true,
         node: true,
