@@ -73,12 +73,25 @@ const argv = yargs(hideBin(process.argv))
     }
   })
   .command('market <action>', 'Market data', (yargs) => {
-    yargs.positional('action', { choices: ['list', 'ticker'], describe: 'Action' });
+    yargs
+      .positional('action', { choices: ['list', 'ticker'], describe: 'Action' })
+      .option('pair', { alias: 'p', type: 'string', describe: 'Trading pair (e.g. BTCEUR)' });
   }, async (argv) => {
     if (argv.action === 'list') {
       const pairs = await market.getPairs();
       console.table(pairs);
+    } else if (argv.action === 'ticker') {
+      if (!argv.pair) {
+        console.error('Error: --pair is required (e.g. cm market ticker --pair BTCEUR)');
+        process.exitCode = 1;
+        return;
+      }
+      await market.ticker(argv.pair.toUpperCase());
     }
+  })
+  .command('balances', 'Show wallet balances', () => {}, async () => {
+    const balances = await api.getBalances();
+    console.table(balances);
   })
   .command('postman <action>', 'Postman documentation', (yargs) => {
     yargs
