@@ -1,10 +1,11 @@
-const AIService = require('../lib/aiService');
+const { AIService } = require('../lib/aiService');
 
 describe('AI Trading Bot Logic', () => {
   let aiService;
 
   beforeEach(() => {
-    aiService = new AIService();
+    aiService = new AIService(null);
+    aiService.model = null; // force offline path for deterministic tests
   });
 
   test('should handle market trend analysis', async () => {
@@ -13,10 +14,11 @@ describe('AI Trading Bot Logic', () => {
     expect(typeof trend).toBe('string');
   });
 
-  test('should parse complex trade commands', async () => {
-    // In demo mode or if API fails it falls back to simulation
-    const trade = await aiService.parseTrade('Buy 0.1 BTC if price drops below 45k');
-    expect(trade).toHaveProperty('action');
-    expect(trade).toHaveProperty('pair');
+  test('should parse trade commands via heuristic fallback', async () => {
+    const { trade, source } = await aiService.parseTrade('Buy 0.1 btc right now');
+    expect(source).toBe('heuristic');
+    expect(trade.action).toBe('BUY');
+    expect(trade.pair).toBe('BTCEUR');
+    expect(trade.amount).toBe(0.1);
   });
 });
